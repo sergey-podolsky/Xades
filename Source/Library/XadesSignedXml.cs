@@ -1324,7 +1324,17 @@ namespace Microsoft.Xades
                     this.SignedInfo.SignatureMethod = "http://www.w3.org/2000/09/xmldsig#dsa-sha1";
                 }
             }
-            SignatureDescription description = CryptoConfig.CreateFromName(this.SignedInfo.SignatureMethod) as SignatureDescription;
+
+            SignatureDescription description;
+            if (this.SignedInfo.SignatureMethod == "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256")
+            {
+                description = new RSAPKCS1SHA256SignatureDescription();
+            }
+            else
+            {
+                description = CryptoConfig.CreateFromName(this.SignedInfo.SignatureMethod) as SignatureDescription;
+            }
+
             if (description == null)
             {
                 throw new CryptographicException("Cryptography_Xml_SignatureDescriptionNotCreated");
