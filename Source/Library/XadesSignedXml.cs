@@ -458,44 +458,52 @@ namespace Microsoft.Xades
             return retVal;
         }
 
-		/// <summary>
-		/// Add a XAdES object to the signature
-		/// </summary>
-		/// <param name="xadesObject">XAdES object to add to signature</param>
-		public void AddXadesObject(XadesObject xadesObject)
-		{
-			Reference reference;
-			DataObject dataObject;
-			XmlElement bufferXmlElement;
+        /// <summary>
+        /// Add a XAdES object to the signature
+        /// </summary>
+        /// <param name="xadesObject">XAdES object to add to signature</param>
+        /// <param name="reference">Reference to XAdES object. Can contain custom transformations, Signature Method, etc.</param>
+        public void AddXadesObject(XadesObject xadesObject, Reference reference)
+        {
+            DataObject dataObject;
+            XmlElement bufferXmlElement;
 
-			if (this.SignatureStandard != KnownSignatureStandard.Xades)
-			{
-				dataObject = new DataObject();
-				dataObject.Id = xadesObject.Id;
-				dataObject.Data = xadesObject.GetXml().ChildNodes;
-				this.AddObject(dataObject); //Add the XAdES object
+            if (this.SignatureStandard != KnownSignatureStandard.Xades)
+            {
+                dataObject = new DataObject();
+                dataObject.Id = xadesObject.Id;
+                dataObject.Data = xadesObject.GetXml().ChildNodes;
+                this.AddObject(dataObject); //Add the XAdES object
 
-				reference = new Reference();
-				signedPropertiesIdBuffer = xadesObject.QualifyingProperties.SignedProperties.Id;
-				reference.Uri = "#" + signedPropertiesIdBuffer;
-				reference.Type = SignedPropertiesType;
-				this.AddReference(reference); //Add the XAdES object reference
+                signedPropertiesIdBuffer = xadesObject.QualifyingProperties.SignedProperties.Id;
+                reference.Uri = "#" + signedPropertiesIdBuffer;
+                reference.Type = SignedPropertiesType;
+                this.AddReference(reference); //Add the XAdES object reference
 
-				this.cachedXadesObjectDocument = new XmlDocument();
-				bufferXmlElement = xadesObject.GetXml();
+                this.cachedXadesObjectDocument = new XmlDocument();
+                bufferXmlElement = xadesObject.GetXml();
 
                 // Add "ds" namespace prefix to all XmlDsig nodes in the XAdES object
                 SetPrefix("ds", bufferXmlElement);
 
-				this.cachedXadesObjectDocument.PreserveWhitespace = true;
-				this.cachedXadesObjectDocument.LoadXml(bufferXmlElement.OuterXml); //Cache to XAdES object for later use
+                this.cachedXadesObjectDocument.PreserveWhitespace = true;
+                this.cachedXadesObjectDocument.LoadXml(bufferXmlElement.OuterXml); //Cache to XAdES object for later use
 
-				this.signatureStandard = KnownSignatureStandard.Xades;
-			}
-			else
-			{
-				throw new CryptographicException("Can't add XAdES object, the signature already contains a XAdES object");
-			}
+                this.signatureStandard = KnownSignatureStandard.Xades;
+            }
+            else
+            {
+                throw new CryptographicException("Can't add XAdES object, the signature already contains a XAdES object");
+            }
+        }
+
+        /// <summary>
+        /// Add a XAdES object to the signature
+        /// </summary>
+        /// <param name="xadesObject">XAdES object to add to signature</param>
+        public void AddXadesObject(XadesObject xadesObject)
+		{
+            this.AddXadesObject(xadesObject, new Reference());
 		}
 
 		/// <summary>
